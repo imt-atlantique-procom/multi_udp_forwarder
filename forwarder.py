@@ -1,5 +1,19 @@
 import socket
-import sys
+import argparse
+
+parser = argparse.ArgumentParser(
+    prog='Multi UDP Forwarder',
+    description='Forwards data from one udp socket to multiple sockets',
+    epilog='Made by Franco Liberali')
+
+parser.add_argument('-a', '--address', nargs='+', required=True,
+                    help='Addresses to use as source for the forwarding in format ip:port')
+parser.add_argument('-d', '--dest', required=True,
+                    help='Destination address in format ip:port')
+parser.add_argument('-p', '--port', required=True, type=int,
+                    help='Port used to listen incoming packets')
+
+args = parser.parse_args()
 
 send_sock_1 = socket.socket(socket.AF_INET,  # Internet
                        socket.SOCK_DGRAM)  # UDP
@@ -9,17 +23,8 @@ def receive_and_forward(receive_sock, dest_ip, dest_port):
     send_sock_1.sendto(data, (dest_ip, dest_port))
 
 LOCALHOST_IP = "127.0.0.1"
-receive_port = 0
-dest_ip = "0"
-dest_port = 0
-
-if len(sys.argv) < 3:
-    print("Error: invalid arguments")
-    exit(1)
-else:
-    receive_port = int(sys.argv[1])
-    dest_ip = sys.argv[2]
-    dest_port = int(sys.argv[3])
+receive_port = args.port
+dest_ip, dest_port = args.dest.split(':')
 
 receive_sock = socket.socket(socket.AF_INET,  # Internet
                      socket.SOCK_DGRAM)  # UDP
